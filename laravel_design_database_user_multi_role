@@ -1,0 +1,43 @@
+Berikut adalah contoh skema database untuk database user dengan multi role:
+
+# Tabel "users":
+id (primary key)
+name
+email
+password
+remember_token
+created_at
+updated_at
+
+# Tabel "roles":
+id (primary key)
+name
+description
+created_at
+updated_at
+
+# Tabel "role_user":
+id (primary key)
+role_id (foreign key ke tabel roles)
+user_id (foreign key ke tabel users)
+created_at
+updated_at
+
+## pada app/Models/User.php
+public function roles()
+{
+    return $this->belongsToMany(Role::class, 'role_user');
+}
+
+public function hasRole($role)
+{
+    if (is_string($role)) {
+        return $this->roles->contains('name', $role);
+    }
+    return !! $role->intersect($this->roles)->count();
+}
+
+## untuk mengujinya di file mana pun (controller, middleware, blade, dll)
+if (auth()->user()->hasRole('admin')) {
+    // Lakukan sesuatu jika user memiliki role 'admin'
+}
