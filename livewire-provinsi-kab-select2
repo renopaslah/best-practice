@@ -1,0 +1,104 @@
+<!-- ProvinceAndCity.blade.php -->
+<div>
+    <livewire:province-component />
+    <livewire:kabupaten-component />
+</div>
+
+-------------------------------------------------------
+
+<?php
+
+namespace App\Http\Livewire;
+
+use Livewire\Component;
+
+class ProvinceComponent extends Component
+{
+    public $province = 'riau';
+    
+    public function selectProvince($province)
+    {
+        $this->province = $province;
+        $this->emit('provinceSelected', $province);
+    }
+    
+    public function render()
+    {
+        return view('livewire.province-component');
+    }
+}
+
+-------------------------------------------------------
+
+<?php
+
+namespace App\Http\Livewire;
+
+use Livewire\Component;
+
+class KabupatenComponent extends Component
+{
+    public $selectedCity;
+    public $province = 'riau';
+    public $cities;
+    
+    protected $listeners = ['provinceSelected' => 'selectProvince'];
+    
+    public function selectProvince($province)
+    {
+        $this->province = $province;
+        $this->cities = $this->getCities($province);
+    }
+    
+    public function updatedSelectedCity($value)
+    {
+        // Lakukan sesuatu ketika nilai terpilih diubah
+    }
+    
+    public function render()
+    {
+        return view('livewire.kabupaten-component', [
+            'cities' => $this->cities,
+        ]);
+    }
+    
+    private function getCities($province)
+    {
+        // Logika untuk mengambil data kota/kabupaten
+    }
+}
+
+-------------------------------------------------------
+
+<!-- province-component.blade.php -->
+<div>
+    <button wire:click="selectProvince('riau')">Riau</button>
+    <button wire:click="selectProvince('jabar')">Jawa Barat</button>
+</div>
+
+-------------------------------------------------------
+
+<!-- kabupaten-component.blade.php -->
+<div>
+    <select wire:model="selectedCity" class="form-control" wire:ignore>
+        <option value="">Pilih Kota/Kabupaten</option>
+        @foreach($cities as $city)
+            <option value="{{ $city->id }}">{{ $city->name }}</option>
+        @endforeach
+    </select>
+</div>
+
+<script>
+    $(document).ready(function() {
+        Livewire.on('provinceSelected', function(province) {
+            var options = @json(getCities(province));
+            $('#select2-kabupaten-container').html('Pilih Kota/Kabupaten');
+            $('#select2-kabupaten-results').empty();
+            $.each(options, function(index, city) {
+                $('#select2-kabupaten-results').append($('<li class="select2-results__option" role="treeitem" aria-selected="false" id="select2-kabupaten-result-' + city.id + '">').append(city.name));
+            });
+        });
+    });
+</script>
+
+
